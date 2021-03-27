@@ -123,6 +123,8 @@ const HeaderOption = styled.div`
 `;
 const CartCount = styled.div`
   padding-left: 4px;
+  color: #f08804;
+  font-weight: 700;
 `;
 const HeaderOptionCart = styled.div`
   display: flex;

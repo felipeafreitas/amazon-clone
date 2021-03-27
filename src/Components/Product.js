@@ -1,19 +1,41 @@
 import React from "react";
 import styled from "styled-components";
+import { db } from "../firebase";
 
-function Product() {
+function Product({ title, price, rating, image, id }) {
+  const addToCart = () => {
+    const cartItem = db.collection("cartItems").doc(id);
+    cartItem.get().then((doc) => {
+      console.log(doc);
+      if (doc.exists) {
+        cartItem.update({
+          quantity: doc.data().quantity + 1,
+        });
+      } else {
+        db.collection("cartItems").doc(id).set({
+          name: title,
+          image: image,
+          price: price,
+          quantity: 1,
+        });
+      }
+    });
+  };
+
   return (
     <Container>
-      <Title>Ipad Pro</Title>
-      <Price>R$10.000,00</Price>
-      <Rating>*****</Rating>
-      <Image
-        src={
-          "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/ipad-pro-12-select-wifi-spacegray-202003_GEO_BR?wid=470&hei=556&fmt=png-alpha&.v=1583552356258"
-        }
-      />
+      <Title>{title}</Title>
+      <Price>R${price.toFixed(2)}</Price>
+      <Rating>
+        {Array(rating)
+          .fill()
+          .map((rating) => (
+            <p>⭐</p>
+          ))}
+      </Rating>
+      <Image src={image} />
       <ActionSection>
-        <AddToCartButton>Add to Cart</AddToCartButton>
+        <AddToCartButton onClick={addToCart}>Add to Cart</AddToCartButton>
       </ActionSection>
     </Container>
   );
@@ -37,7 +59,9 @@ const Price = styled.span`
   font-weight: 500;
   margin-top: 3px;
 `;
-const Rating = styled.div``;
+const Rating = styled.div`
+  display: flex;
+`;
 const Image = styled.img`
   max-height: 200px;
   object-fit: contain;
@@ -54,4 +78,5 @@ const AddToCartButton = styled.button`
   border: 2px solid #a88734;
   border-radius: 2px;
   height: 30px;
+  cursor: pointer;
 `;
