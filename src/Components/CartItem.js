@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components";
+import { db } from "../firebase";
 
 function CartItem({ id, item }) {
   let options = [];
@@ -7,6 +8,19 @@ function CartItem({ id, item }) {
   for (let i = 1; i < Math.max(item.quantity + 1, 20); i++) {
     options.push(<option value={i}> Qty: {i}</option>);
   }
+
+  const changeQuantity = (newQuantity) => {
+    db.collection("cartItems")
+      .doc(id)
+      .update({
+        quantity: parseInt(newQuantity),
+      });
+  };
+
+  const deleteItem = (e) => {
+    e.preventDefault();
+    db.collection("cartItems").doc(id).delete();
+  };
 
   return (
     <Container>
@@ -19,9 +33,14 @@ function CartItem({ id, item }) {
         </CartInfoTop>
         <CartIInfoBottom>
           <CartInfoQuantity>
-            <select value={item.quantity}>{options}</select>
+            <select
+              value={item.quantity}
+              onChange={(e) => changeQuantity(e.target.value)}
+            >
+              {options}
+            </select>
           </CartInfoQuantity>
-          <CartItemDelete>Delete</CartItemDelete>
+          <CartItemDelete onClick={deleteItem}>Delete</CartItemDelete>
         </CartIInfoBottom>
       </CartItemInfo>
       <CartItemPrice>{item.price}</CartItemPrice>
@@ -36,7 +55,6 @@ const Container = styled.div`
   padding-bottom: 12px;
   display: flex;
   border-bottom: 1px solid #ddd;
-  
 `;
 const ImageContainer = styled.div`
   width: 180px;
